@@ -1,0 +1,35 @@
+# Staging workflow- runs on merged PRs to `staging` branch.
+# Deploys our app to Netlify staging instance:
+# https://vivshaw-scratch-staging.netlify.app/
+name: Staging
+
+on:
+  pull_request:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout from GitHub
+      - name: Checkout code
+        uses: actions/checkout@v1
+      # Set up Node
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      # npm install and build
+      - run: npm install
+      - run: npm run build --if-present
+      # Netlify deploy
+      - name: Deploy to netlify
+        uses: netlify/actions/cli@master
+        env:
+          # Don't leak those secrets!
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.STAGING_NETLIFY_SITE_ID }}
+        with:
+          args: deploy --dir=build --prod
+          secrets: '["NETLIFY_AUTH_TOKEN", "STAGING_NETLIFY_SITE_ID"]'

@@ -1,0 +1,37 @@
+# Production workflow- runs on release only.
+# Deploys our app to Netlify prod instance:
+# https://vivshaw-scratch-prod.netlify.app/
+name: Production
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "v*"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout from GitHub
+      - name: Checkout code
+        uses: actions/checkout@v1
+      # Set up Node
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      # npm install and build
+      - run: npm install
+      - run: npm run build --if-present
+      # Netlify deploy
+      - name: Deploy to netlify
+        uses: netlify/actions/cli@master
+        env:
+          # Don't leak those secrets!
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.PROD_NETLIFY_SITE_ID }}
+        with:
+          args: deploy --dir=build --prod
+          secrets: '["NETLIFY_AUTH_TOKEN", "PROD_NETLIFY_SITE_ID"]'
