@@ -5,4 +5,5 @@
 import "@testing-library/jest-dom";
 import { setupAws } from "./libs/awsLib";
 
+// By setting up Amplify here, we can use it in all tests instead of mocking it.
 setupAws();
