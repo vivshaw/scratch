@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import SearchPanel from "./SearchPanel";
 
 test("displays a search field", async () => {
@@ -50,4 +50,40 @@ test("displays the search term", async () => {
   const searchField = screen.getByDisplayValue(searchTerm);
 
   expect(searchField).toBeInTheDocument;
+});
+
+test("calls setSearchTerm when the input is changed", async () => {
+  const searchTerm = "";
+  const setSearchTerm = jest.fn();
+  const clearSearch = jest.fn();
+  render(
+    <SearchPanel
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      clearSearch={clearSearch}
+    />
+  );
+
+  fireEvent.change(screen.getByRole("textbox"), {
+    target: { value: "test input" },
+  });
+
+  expect(setSearchTerm).toHaveBeenCalledTimes(1);
+});
+
+test("calls clearSearch when the clear button is clicked", async () => {
+  const searchTerm = "";
+  const setSearchTerm = jest.fn();
+  const clearSearch = jest.fn();
+  render(
+    <SearchPanel
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      clearSearch={clearSearch}
+    />
+  );
+
+  fireEvent.click(screen.getByRole("button"));
+
+  expect(clearSearch).toHaveBeenCalledTimes(1);
 });
