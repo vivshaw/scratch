@@ -9,7 +9,6 @@ import {
 import { AppContext } from "../libs/contextLib";
 import { MemoryRouter } from "react-router-dom";
 import Home from "./Home";
-import { setupAws } from "../libs/awsLib";
 import { notesFixture } from "../testFixtures";
 
 /* We'll use Mock Service Worker to fake an AWS response from our API.
@@ -25,16 +24,13 @@ const server = setupServer(
   )
 );
 
-// Initialize Amplify and MSW. Since we're using MSW, we don't need to mock Amplify!
+/* MSW setup: initialize before tests, reset between tests, and clean up
+ * when we're done.
+ */
 beforeAll(() => {
-  setupAws();
   server.listen();
 });
-
-// Reset MSW on each test.
 afterEach(() => server.resetHandlers());
-
-// Cleanup
 afterAll(() => server.close());
 
 /* This one has a `Can't perform a React state update on an unmounted component.`
@@ -42,7 +38,7 @@ afterAll(() => server.close());
  * if the component was removed!
  */
 test("displays a spinner while loading", async () => {
-  const { container } = render(
+  render(
     <AppContext.Provider
       value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
     >
