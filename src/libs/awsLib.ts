@@ -27,12 +27,16 @@ export function setupAws() {
   });
 }
 
-export async function s3Upload(file) {
+interface awsStorageResult {
+  key: string;
+}
+
+export async function s3Upload(file: File) {
   const filename = `${Date.now()}-${file.name}`;
 
-  const stored = await Storage.vault.put(filename, file, {
+  const stored = (await Storage.vault.put(filename, file, {
     contentType: file.type,
-  });
+  })) as awsStorageResult;
 
   return stored.key;
 }
