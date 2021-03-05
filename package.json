@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@sentry/browser": "^5.27.3",
+    "@testing-library/cypress": "^7.0.4",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -13,6 +14,7 @@
     "@types/react-dom": "^17.0.1",
     "aws-amplify": "^3.3.7",
     "cypress": "^6.6.0",
+    "cypress-localstorage-commands": "^1.4.1",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",
     "react-dom": "^17.0.1",
@@ -51,6 +53,7 @@
   },
   "devDependencies": {
     "@types/react-router-dom": "^5.1.7",
+    "dotenv": "^8.2.0",
     "msw": "^0.27.0"
   }
 }
