@@ -21,11 +21,10 @@ jobs:
           node-version: 12.x
       # jest tests
       - run: npm install
-      - run: npm run build --if-present
       - run: npm test
       # cypress tests
       - name: Cypress run
-        uses: cypress-io/github-action@v1
+        uses: cypress-io/github-action@v2
         env:
           # Don't leak those secrets!
           SCRATCH_USERNAME: ${{ secrets.SCRATCH_USERNAME }}
