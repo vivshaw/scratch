@@ -4,8 +4,8 @@ name: Test
 on:
   pull_request:
     branches:
-      - dev
-      - main
+      - staging
+      - master
 
 jobs:
   test:
