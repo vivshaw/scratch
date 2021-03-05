@@ -1,13 +1,13 @@
-import React from "react";
+import React, { FunctionComponent } from "react";
 import { Spinner } from "react-bootstrap";
 import "./LoadingSpinner.css";
 
-export default function LoadingSpinner() {
-  return (
-    <div className="LoadingSpinner">
-      <Spinner animation="border" role="status">
-        <span className="sr-only">Loading...</span>
-      </Spinner>
-    </div>
-  );
-}
+const LoadingSpinner: FunctionComponent = () => (
+  <div className="LoadingSpinner">
+    <Spinner animation="border" role="status">
+      <span className="sr-only">Loading...</span>
+    </Spinner>
+  </div>
+);
+
+export default LoadingSpinner;
