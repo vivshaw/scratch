@@ -38,6 +38,10 @@ afterAll(() => server.close());
  * if the component was removed!
  */
 test("displays a spinner while loading", async () => {
+  /* We need to mock the auth context to get to the notes screen.
+   * We also need to provide a React Router instance so our
+   * LinkContainers can load. We'll do the same for the other Home tests.
+   */
   render(
     <AppContext.Provider
       value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
@@ -53,10 +57,6 @@ test("displays a spinner while loading", async () => {
 });
 
 test("removes the spinner once loaded", async () => {
-  /* We need to mock the auth context to get to the notes screen.
-   * We also need to provide a React Router instance so our
-   * LinkContainers can load. We'll do the same for the other Home tests.
-   */
   render(
     <AppContext.Provider
       value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
