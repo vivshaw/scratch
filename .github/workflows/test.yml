@@ -26,6 +26,10 @@ jobs:
       # cypress tests
       - name: Cypress run
         uses: cypress-io/github-action@v1
+        env:
+          # Don't leak those secrets!
+          SCRATCH_USERNAME: ${{ secrets.SCRATCH_USERNAME }}
+          SCRATCH_PASSWORD: ${{ secrets.SCRATCH_PASSWORD }}
         with:
           build: npm run build
           start: npm start
