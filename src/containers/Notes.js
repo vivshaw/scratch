@@ -7,6 +7,7 @@ import { onError } from "../libs/errorLib";
 import { s3Upload } from "../libs/awsLib";
 import config from "../config";
 import "./Notes.css";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function Notes() {
   const file = useRef(null);
@@ -55,7 +56,7 @@ export default function Notes() {
 
   function saveNote(note) {
     return API.put("notes", `/notes/${id}`, {
-      body: note
+      body: note,
     });
   }
 
@@ -82,7 +83,7 @@ export default function Notes() {
 
       await saveNote({
         content,
-        attachment: attachment || note.attachment
+        attachment: attachment || note.attachment,
       });
       history.push("/");
     } catch (e) {
@@ -117,8 +118,10 @@ export default function Notes() {
     }
   }
 
+  // We now make use of `note` to decide whether to render a loading state.
   return (
     <div className="Notes">
+      {!note && <LoadingSpinner />}
       {note && (
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="content">

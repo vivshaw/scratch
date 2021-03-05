@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { BsPencilSquare } from "react-icons/bs";
 import ListGroup from "react-bootstrap/ListGroup";
 import { LinkContainer } from "react-router-bootstrap";
+import LoadingSpinner from "../components/LoadingSpinner";
 import { useAppContext } from "../libs/contextLib";
 import { onError } from "../libs/errorLib";
 import "./Home.css";
@@ -79,15 +80,17 @@ export default function Home() {
     );
   }
 
+  // We now make use of `isLoading` to decide whether to render a loading state.
   function renderNotes() {
     return (
       <div className="notes">
         <h2 className="pb-3 mt-4 mb-3 border-bottom">Your Notes</h2>
-        <ListGroup>{!isLoading && renderNotesList(notes)}</ListGroup>
+        {isLoading && <LoadingSpinner />}
+        {!isLoading && <ListGroup> {renderNotesList(notes)}</ListGroup>}
       </div>
     );
   }
-  
+
   return (
     <div className="Home">
       {isAuthenticated ? renderNotes() : renderLander()}
