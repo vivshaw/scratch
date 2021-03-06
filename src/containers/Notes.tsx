@@ -26,6 +26,9 @@ interface NoteWithAttachment extends Note {
 }
 
 export default function Notes() {
+  // Fix to prevent state updates after unmount
+  const isMounted = useRef(true);
+
   const file = useRef<File | null>(null);
   const { id } = useParams<RouteParams>();
   const history = useHistory();
@@ -33,6 +36,15 @@ export default function Notes() {
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  /* Set our isMounted ref to false upon unmount.
+   * This way, we can conditionally avoid updating state after unmount.
+   */
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     function loadNote() {
@@ -47,9 +59,10 @@ export default function Notes() {
         if (attachment) {
           note.attachmentURL = await Storage.vault.get(attachment);
         }
-
-        setContent(content);
-        setNote(note);
+        if (isMounted.current) {
+          setContent(content);
+          setNote(note);
+        }
       } catch (e) {
         onError(e);
       }

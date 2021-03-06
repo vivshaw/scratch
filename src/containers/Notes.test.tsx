@@ -1,19 +1,44 @@
-import React from "react";
-import { rest } from "msw";
-import { setupServer } from "msw/node";
+import React, { FunctionComponent, ReactElement } from "react";
 import {
   render,
   screen,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
+
 import { AppContext } from "../libs/contextLib";
+import AuthenticatedRoute from "../components/AuthenticatedRoute";
 import { MemoryRouter } from "react-router-dom";
 import Notes from "./Notes";
 import { notesFixture } from "../testFixtures";
-import AuthenticatedRoute from "../components/AuthenticatedRoute";
+import { rest } from "msw";
+import { setupServer } from "msw/node";
 
 // We'll use this particular note for our tests.
 const testNote = notesFixture[0];
+
+// Wrapper for Notes screen tests
+const testAppContext = {
+  value: { isAuthenticated: true, userHasAuthenticated: jest.fn() },
+};
+
+/* We need to mock the auth context to get to the note screen.
+ * We also need to do some funky mocking to get the `useParams` to
+ * think we're on a route and pass the appropriate note id.
+ */
+const AllProviders: FunctionComponent = ({ children }) => {
+  return (
+    <MemoryRouter initialEntries={[`/notes/${testNote.noteId}`]}>
+      <AppContext.Provider {...testAppContext}>
+        <AuthenticatedRoute exact path="/notes/:id">
+          {children}
+        </AuthenticatedRoute>
+      </AppContext.Provider>
+    </MemoryRouter>
+  );
+};
+
+const renderWrapped = (ui: ReactElement) =>
+  render(ui, { wrapper: AllProviders });
 
 /* We'll use Mock Service Worker to fake an AWS response from our API.
  * Since we're doing a GET at the `/notes/:id` endpoint,
@@ -46,17 +71,7 @@ test("displays a spinner on initial load", async () => {
    * We also need to do some funky mocking to get the `useParams` to
    * think we're on a route and pass the appropriate note id.
    */
-  render(
-    <MemoryRouter initialEntries={[`/notes/${testNote.noteId}`]}>
-      <AppContext.Provider
-        value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
-      >
-        <AuthenticatedRoute exact path="/notes/:id">
-          <Notes />
-        </AuthenticatedRoute>
-      </AppContext.Provider>
-    </MemoryRouter>
-  );
+  renderWrapped(<Notes />);
 
   const spinner = screen.getByRole("status");
 
@@ -64,21 +79,7 @@ test("displays a spinner on initial load", async () => {
 });
 
 test("removes the spinner after loading", async () => {
-  /* We need to mock the auth context to get to the note screen.
-   * We also need to do some funky mocking to get the `useParams` to
-   * think we're on a route and pass the appropriate note id.
-   */
-  render(
-    <MemoryRouter initialEntries={[`/notes/${testNote.noteId}`]}>
-      <AppContext.Provider
-        value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
-      >
-        <AuthenticatedRoute exact path="/notes/:id">
-          <Notes />
-        </AuthenticatedRoute>
-      </AppContext.Provider>
-    </MemoryRouter>
-  );
+  renderWrapped(<Notes />);
 
   const spinner = screen.getByRole("status");
 
@@ -88,19 +89,7 @@ test("removes the spinner after loading", async () => {
 });
 
 test("displays the note once loaded", async () => {
-  jest.spyOn(window, "alert").mockImplementation((msg) => console.log(msg));
-
-  render(
-    <MemoryRouter initialEntries={[`/notes/${testNote.noteId}`]}>
-      <AppContext.Provider
-        value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
-      >
-        <AuthenticatedRoute exact path="/notes/:id">
-          <Notes />
-        </AuthenticatedRoute>
-      </AppContext.Provider>
-    </MemoryRouter>
-  );
+  renderWrapped(<Notes />);
 
   const noteTextbox = await screen.findByRole("textbox");
 

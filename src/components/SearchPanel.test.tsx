@@ -1,17 +1,15 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import SearchPanel from "./SearchPanel";
+import SearchPanel, { SearchPanelProps } from "./SearchPanel";
+import { fireEvent, render, screen } from "@testing-library/react";
+
+// Test props for the component
+const testProps: SearchPanelProps = {
+  searchTerm: "",
+  onChange: jest.fn(),
+  onClear: jest.fn(),
+};
 
 test("displays a search field", async () => {
-  const searchTerm = "";
-  const setSearchTerm = jest.fn();
-  const clearSearch = jest.fn();
-  render(
-    <SearchPanel
-      searchTerm=""
-      setSearchTerm={setSearchTerm}
-      clearSearch={clearSearch}
-    />
-  );
+  render(<SearchPanel {...testProps} />);
 
   const searchField = screen.getByRole("textbox");
 
@@ -19,12 +17,7 @@ test("displays a search field", async () => {
 });
 
 test("displays a clear button", async () => {
-  const searchTerm = "";
-  const setSearchTerm = jest.fn();
-  const clearSearch = jest.fn();
-  render(
-    <SearchPanel searchTerm="" onChange={setSearchTerm} onClear={clearSearch} />
-  );
+  render(<SearchPanel {...testProps} />);
 
   const clearButton = screen.getByRole("button");
 
@@ -33,15 +26,7 @@ test("displays a clear button", async () => {
 
 test("displays the search term", async () => {
   const searchTerm = "test term";
-  const setSearchTerm = jest.fn();
-  const clearSearch = jest.fn();
-  render(
-    <SearchPanel
-      searchTerm={searchTerm}
-      onChange={setSearchTerm}
-      onClear={clearSearch}
-    />
-  );
+  render(<SearchPanel {...testProps} searchTerm={searchTerm} />);
 
   const searchField = screen.getByDisplayValue(searchTerm);
 
@@ -49,37 +34,19 @@ test("displays the search term", async () => {
 });
 
 test("calls setSearchTerm when the input is changed", async () => {
-  const searchTerm = "";
-  const setSearchTerm = jest.fn();
-  const clearSearch = jest.fn();
-  render(
-    <SearchPanel
-      searchTerm={searchTerm}
-      onChange={setSearchTerm}
-      onClear={clearSearch}
-    />
-  );
+  render(<SearchPanel {...testProps} />);
 
   fireEvent.change(screen.getByRole("textbox"), {
     target: { value: "test input" },
   });
 
-  expect(setSearchTerm).toHaveBeenCalledTimes(1);
+  expect(testProps.onChange).toHaveBeenCalledTimes(1);
 });
 
 test("calls clearSearch when the clear button is clicked", async () => {
-  const searchTerm = "";
-  const setSearchTerm = jest.fn();
-  const clearSearch = jest.fn();
-  render(
-    <SearchPanel
-      searchTerm={searchTerm}
-      onChange={setSearchTerm}
-      onClear={clearSearch}
-    />
-  );
+  render(<SearchPanel {...testProps} />);
 
   fireEvent.click(screen.getByRole("button"));
 
-  expect(clearSearch).toHaveBeenCalledTimes(1);
+  expect(testProps.onClear).toHaveBeenCalledTimes(1);
 });
