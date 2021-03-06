@@ -1,16 +1,33 @@
-import React from "react";
-import { rest } from "msw";
-import { setupServer } from "msw/node";
+import React, { FunctionComponent, ReactElement } from "react";
 import {
+  fireEvent,
   render,
   screen,
   waitForElementToBeRemoved,
-  fireEvent,
 } from "@testing-library/react";
+
 import { AppContext } from "../libs/contextLib";
-import { MemoryRouter } from "react-router-dom";
 import Home from "./Home";
+import { MemoryRouter } from "react-router-dom";
 import { notesFixture } from "../testFixtures";
+import { rest } from "msw";
+import { setupServer } from "msw/node";
+
+// Wrapper for Home screen tests
+const testAppContext = {
+  value: { isAuthenticated: true, userHasAuthenticated: jest.fn() },
+};
+
+const AllProviders: FunctionComponent = ({ children }) => {
+  return (
+    <MemoryRouter>
+      <AppContext.Provider {...testAppContext}>{children}</AppContext.Provider>
+    </MemoryRouter>
+  );
+};
+
+const renderWrapped = (ui: ReactElement) =>
+  render(ui, { wrapper: AllProviders });
 
 /* We'll use Mock Service Worker to fake an AWS response from our API.
  * Since we're doing a GET at the `/notes` endpoint,
@@ -34,38 +51,31 @@ beforeAll(() => {
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-/* This one has a `Can't perform a React state update on an unmounted component.`
- * warning due to how the initial useEffect hook was written. It will fire even
- * if the component was removed!
- */
+/* Test the spinners */
 test("displays a spinner while loading", async () => {
   /* We need to mock the auth context to get to the notes screen.
    * We also need to provide a React Router instance so our
    * LinkContainers can load. We'll do the same for the other Home tests.
    */
-  render(
-    <AppContext.Provider
-      value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
-    >
-      <Home />
-    </AppContext.Provider>,
-    { wrapper: MemoryRouter }
-  );
+  renderWrapped(<Home />);
 
   const spinner = screen.getByRole("status");
 
   expect(spinner).toBeInTheDocument;
 });
 
+test("displays the Notes section once loaded", async () => {
+  renderWrapped(<Home />);
+
+  const createNoteLink = await screen.findByRole("link", {
+    name: "Create a new note",
+  });
+
+  expect(createNoteLink).toBeInTheDocument;
+});
+
 test("removes the spinner once loaded", async () => {
-  render(
-    <AppContext.Provider
-      value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
-    >
-      <Home />
-    </AppContext.Provider>,
-    { wrapper: MemoryRouter }
-  );
+  renderWrapped(<Home />);
 
   const spinner = screen.getByRole("status");
 
@@ -74,68 +84,33 @@ test("removes the spinner once loaded", async () => {
   expect(spinner).not.toBeInTheDocument;
 });
 
-test("displays the Notes section once loaded", async () => {
-  render(
-    <AppContext.Provider
-      value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
-    >
-      <Home />
-    </AppContext.Provider>,
-    { wrapper: MemoryRouter }
-  );
-
-  const createNoteButton = await screen.findByText("Create a new note");
-
-  expect(createNoteButton).toBeInTheDocument;
-});
-
+/* Test the search functionality */
 test("displays a search button", async () => {
-  render(
-    <AppContext.Provider
-      value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
-    >
-      <Home />
-    </AppContext.Provider>,
-    { wrapper: MemoryRouter }
-  );
+  renderWrapped(<Home />);
 
-  const searchButton = await screen.findByText("Search");
+  const searchButton = await screen.findByRole("button", { name: "Search" });
 
   expect(searchButton).toBeInTheDocument;
 });
 
 test("instead displays a close button after clicking the search button", async () => {
-  render(
-    <AppContext.Provider
-      value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
-    >
-      <Home />
-    </AppContext.Provider>,
-    { wrapper: MemoryRouter }
-  );
+  renderWrapped(<Home />);
 
-  const searchButton = await screen.findByText("Search");
+  const searchButton = await screen.findByRole("button", { name: "Search" });
   fireEvent.click(searchButton);
 
   expect(searchButton).not.toBeInTheDocument;
 
   const closeButton = await screen.findByRole("button", {
-    name: "Close search panel",
+    name: "Close",
   });
   expect(closeButton).toBeInTheDocument;
 });
 
 test("displays the search panel after clicking the search button", async () => {
-  render(
-    <AppContext.Provider
-      value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
-    >
-      <Home />
-    </AppContext.Provider>,
-    { wrapper: MemoryRouter }
-  );
+  renderWrapped(<Home />);
 
-  const searchButton = await screen.findByText("Search");
+  const searchButton = await screen.findByRole("button", { name: "Search" });
   fireEvent.click(searchButton);
 
   const searchBox = await screen.findByRole("textbox", {
@@ -145,22 +120,60 @@ test("displays the search panel after clicking the search button", async () => {
 });
 
 test("closes the search once the close button is clicked", async () => {
-  render(
-    <AppContext.Provider
-      value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
-    >
-      <Home />
-    </AppContext.Provider>,
-    { wrapper: MemoryRouter }
-  );
+  renderWrapped(<Home />);
 
-  fireEvent.click(await screen.findByText("Search"));
+  const searchButton = await screen.findByRole("button", { name: "Search" });
+
+  fireEvent.click(searchButton);
   fireEvent.click(
     await screen.findByRole("button", {
-      name: "Close search panel",
+      name: "Close",
     })
   );
 
-  const searchButton = await screen.findByText("Search");
   expect(searchButton).toBeInTheDocument;
+});
+
+/* Test the find & replace functionality */
+test("displays a find & replace button", async () => {
+  renderWrapped(<Home />);
+
+  const findReplaceButton = await screen.findByRole("button", {
+    name: "Find & Replace",
+  });
+
+  expect(findReplaceButton).toBeInTheDocument;
+});
+
+test("instead displays a close button after clicking the find & replace button", async () => {
+  renderWrapped(<Home />);
+
+  const findReplaceButton = await screen.findByRole("button", {
+    name: "Find & Replace",
+  });
+  fireEvent.click(findReplaceButton);
+
+  expect(findReplaceButton).not.toBeInTheDocument;
+
+  const closeButton = await screen.findByRole("button", {
+    name: "Close",
+  });
+  expect(closeButton).toBeInTheDocument;
+});
+
+test("closes the find & replace once the close button is clicked", async () => {
+  renderWrapped(<Home />);
+
+  const findReplaceButton = await screen.findByRole("button", {
+    name: "Find & Replace",
+  });
+  fireEvent.click(findReplaceButton);
+
+  fireEvent.click(
+    await screen.findByRole("button", {
+      name: "Close",
+    })
+  );
+
+  expect(findReplaceButton).toBeInTheDocument;
 });
