@@ -1,14 +1,15 @@
-import React, { FunctionComponent } from "react";
 import "./SearchPanel.css";
-import { Button, Form, InputGroup } from "react-bootstrap";
 import "./FindReplacePanel.css";
+
+import { Button, Form, InputGroup } from "react-bootstrap";
+import React, { FunctionComponent } from "react";
 
 export type FindReplacePanelProps = {
   findTerm: string;
   replaceTerm: string;
-  onChangeFind: (term: string) => {};
-  onChangeReplace: (term: string) => {};
-  doFindReplace: () => {};
+  onChangeFind: (term: string) => void;
+  onChangeReplace: (term: string) => void;
+  doFindReplace: () => void;
 };
 
 const FindReplacePanel: FunctionComponent<FindReplacePanelProps> = ({

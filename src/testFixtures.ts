@@ -1,4 +1,6 @@
-export const notesFixture = [
+import { Note } from "./types";
+
+export const notesFixture: Array<Note> = [
   {
     attachment: null,
     content: "Test Item",
