@@ -7,3 +7,16 @@
   font-family: "Open Sans", sans-serif;
   font-weight: 600;
 }
+
+.notes-bar {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .notes-bar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
