@@ -1,26 +1,54 @@
-import React, { useRef, useState, useEffect } from "react";
-import Form from "react-bootstrap/Form";
+import "./Notes.css";
+
 import { API, Storage } from "aws-amplify";
-import { useParams, useHistory } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
+
+import Form from "react-bootstrap/Form";
 import LoaderButton from "../components/LoaderButton";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { Note } from "../types";
+import config from "../config";
 import { onError } from "../libs/errorLib";
 import { s3Upload } from "../libs/awsLib";
-import config from "../config";
-import "./Notes.css";
-import LoadingSpinner from "../components/LoadingSpinner";
+
+interface RouteParams {
+  id: string;
+}
+
+interface NoteUpdateFields {
+  content: string;
+  attachment: string | null | undefined;
+}
+
+interface NoteWithAttachment extends Note {
+  attachmentURL: string | undefined;
+}
 
 export default function Notes() {
-  const file = useRef(null);
-  const { id } = useParams();
+  // Fix to prevent state updates after unmount
+  const isMounted = useRef(true);
+
+  const file = useRef<File | null>(null);
+  const { id } = useParams<RouteParams>();
   const history = useHistory();
-  const [note, setNote] = useState(null);
+  const [note, setNote] = useState<NoteWithAttachment | null>(null);
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  /* Set our isMounted ref to false upon unmount.
+   * This way, we can conditionally avoid updating state after unmount.
+   */
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   useEffect(() => {
     function loadNote() {
-      return API.get("notes", `/notes/${id}`);
+      return API.get("notes", `/notes/${id}`, {});
     }
 
     async function onLoad() {
@@ -31,9 +59,10 @@ export default function Notes() {
         if (attachment) {
           note.attachmentURL = await Storage.vault.get(attachment);
         }
-
-        setContent(content);
-        setNote(note);
+        if (isMounted.current) {
+          setContent(content);
+          setNote(note);
+        }
       } catch (e) {
         onError(e);
       }
@@ -46,21 +75,25 @@ export default function Notes() {
     return content.length > 0;
   }
 
-  function formatFilename(str) {
+  function formatFilename(str: string) {
     return str.replace(/^\w+-/, "");
   }
 
-  function handleFileChange(event) {
-    file.current = event.target.files[0];
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const newFile = event?.currentTarget?.files?.[0];
+
+    if (newFile != null) {
+      file.current = newFile;
+    }
   }
 
-  function saveNote(note) {
+  function saveNote(note: NoteUpdateFields) {
     return API.put("notes", `/notes/${id}`, {
       body: note,
     });
   }
 
-  async function handleSubmit(event) {
+  async function handleSubmit(event: React.SyntheticEvent) {
     let attachment;
 
     event.preventDefault();
@@ -83,7 +116,7 @@ export default function Notes() {
 
       await saveNote({
         content,
-        attachment: attachment || note.attachment,
+        attachment: attachment || note?.attachment,
       });
       history.push("/");
     } catch (e) {
@@ -93,10 +126,10 @@ export default function Notes() {
   }
 
   function deleteNote() {
-    return API.del("notes", `/notes/${id}`);
+    return API.del("notes", `/notes/${id}`, {});
   }
 
-  async function handleDelete(event) {
+  async function handleDelete(event: React.FormEvent<HTMLButtonElement>) {
     event.preventDefault();
 
     const confirmed = window.confirm(

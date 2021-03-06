@@ -11,17 +11,22 @@ import { Link } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
 import ListGroup from "react-bootstrap/ListGroup";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { Note } from "../types";
 import SearchPanel from "../components/SearchPanel";
 import { onError } from "../libs/errorLib";
 import { useAppContext } from "../libs/contextLib";
 
 /* Hit our AWS API endpoint to load notes. */
 function loadNotes() {
-  return API.get("notes", "/notes");
+  return API.get("notes", "/notes", {});
 }
 
 /* Do a find & replace. */
-function findReplaceNotes(selectedNotes, findTerm, replaceTerm) {
+function findReplaceNotes(
+  selectedNotes: Array<Note>,
+  findTerm: string,
+  replaceTerm: string
+) {
   if (selectedNotes.length === 0) {
     return;
   }
@@ -44,7 +49,7 @@ export default function Home() {
   const isMounted = useRef(true);
 
   // Home screen state
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState<Array<Note>>([]);
   const { isAuthenticated } = useAppContext();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -186,7 +191,7 @@ export default function Home() {
   }
 
   // The actual list of notes.
-  function renderNotesList(notes) {
+  function renderNotesList(notes: Array<Note>) {
     return (
       <>
         {notes.map(({ noteId, content, createdAt }) => (

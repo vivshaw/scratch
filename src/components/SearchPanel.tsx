@@ -1,12 +1,14 @@
-import React, { FunctionComponent } from "react";
 import "./SearchPanel.css";
+
 import { Button, Form, InputGroup } from "react-bootstrap";
+import React, { FunctionComponent } from "react";
+
 import { FaSearch } from "react-icons/fa";
 
-type SearchPanelProps = {
+export type SearchPanelProps = {
   searchTerm: string;
-  onChange: (term: string) => {};
-  onClear: () => {};
+  onChange: (term: string) => void;
+  onClear: () => void;
 };
 
 const SearchPanel: FunctionComponent<SearchPanelProps> = ({
