@@ -33,14 +33,14 @@ describe("the Home page", () => {
 
     cy.log("Closing search panel");
     cy.findByRole("button", {
-      name: "Close search panel",
+      name: "Close",
     })
       .should("exist")
       .click();
 
     cy.log("Search panel and close button should be gone");
     cy.findByRole("button", {
-      name: "Close search panel",
+      name: "Close",
     }).should("not.exist");
     cy.findByRole("textbox").should("not.exist");
   });
