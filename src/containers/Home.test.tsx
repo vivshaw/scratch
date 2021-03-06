@@ -5,6 +5,7 @@ import {
   render,
   screen,
   waitForElementToBeRemoved,
+  fireEvent,
 } from "@testing-library/react";
 import { AppContext } from "../libs/contextLib";
 import { MemoryRouter } from "react-router-dom";
@@ -86,4 +87,80 @@ test("displays the Notes section once loaded", async () => {
   const createNoteButton = await screen.findByText("Create a new note");
 
   expect(createNoteButton).toBeInTheDocument;
+});
+
+test("displays a search button", async () => {
+  render(
+    <AppContext.Provider
+      value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
+    >
+      <Home />
+    </AppContext.Provider>,
+    { wrapper: MemoryRouter }
+  );
+
+  const searchButton = await screen.findByText("Search");
+
+  expect(searchButton).toBeInTheDocument;
+});
+
+test("instead displays a close button after clicking the search button", async () => {
+  render(
+    <AppContext.Provider
+      value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
+    >
+      <Home />
+    </AppContext.Provider>,
+    { wrapper: MemoryRouter }
+  );
+
+  const searchButton = await screen.findByText("Search");
+  fireEvent.click(searchButton);
+
+  expect(searchButton).not.toBeInTheDocument;
+
+  const closeButton = await screen.findByRole("button", {
+    name: "Close search panel",
+  });
+  expect(closeButton).toBeInTheDocument;
+});
+
+test("displays the search panel after clicking the search button", async () => {
+  render(
+    <AppContext.Provider
+      value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
+    >
+      <Home />
+    </AppContext.Provider>,
+    { wrapper: MemoryRouter }
+  );
+
+  const searchButton = await screen.findByText("Search");
+  fireEvent.click(searchButton);
+
+  const searchBox = await screen.findByRole("textbox", {
+    name: "Search",
+  });
+  expect(searchBox).toBeInTheDocument;
+});
+
+test("closes the search once the close button is clicked", async () => {
+  render(
+    <AppContext.Provider
+      value={{ isAuthenticated: true, userHasAuthenticated: () => {} }}
+    >
+      <Home />
+    </AppContext.Provider>,
+    { wrapper: MemoryRouter }
+  );
+
+  fireEvent.click(await screen.findByText("Search"));
+  fireEvent.click(
+    await screen.findByRole("button", {
+      name: "Close search panel",
+    })
+  );
+
+  const searchButton = await screen.findByText("Search");
+  expect(searchButton).toBeInTheDocument;
 });

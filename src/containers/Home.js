@@ -8,11 +8,17 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { useAppContext } from "../libs/contextLib";
 import { onError } from "../libs/errorLib";
 import "./Home.css";
+import { Button } from "react-bootstrap";
+import { FaWindowClose } from "react-icons/fa";
+import SearchPanel from "../components/SearchPanel";
 
 export default function Home() {
   const [notes, setNotes] = useState([]);
   const { isAuthenticated } = useAppContext();
   const [isLoading, setIsLoading] = useState(true);
+
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function onLoad() {
@@ -37,15 +43,27 @@ export default function Home() {
     return API.get("notes", "/notes");
   }
 
+  function clearSearch() {
+    setSearchTerm("");
+  }
+
+  function exitSearchPanel() {
+    setIsSearching(false);
+    clearSearch();
+  }
+
+  /* If we have typed in a searchTerm,
+   * we will filter the notes to just ones that contain that term.
+   * Otherwise, we'll just use all the notes.
+   */
+  const filteredNotes = searchTerm
+    ? notes.filter((note) => note.content.includes(searchTerm))
+    : notes;
+  const notesPresent = filteredNotes.length > 0;
+
   function renderNotesList(notes) {
     return (
       <>
-        <LinkContainer to="/notes/new">
-          <ListGroup.Item action className="py-3 text-nowrap text-truncate">
-            <BsPencilSquare size={17} />
-            <span className="ml-2 font-weight-bold">Create a new note</span>
-          </ListGroup.Item>
-        </LinkContainer>
         {notes.map(({ noteId, content, createdAt }) => (
           <LinkContainer key={noteId} to={`/notes/${noteId}`}>
             <ListGroup.Item action>
@@ -80,13 +98,69 @@ export default function Home() {
     );
   }
 
+  /* Depending on whether we are searching or not, and whether any notes
+   * are found, we may display the note list, or one of two messages.
+   */
+  function renderNotesSection() {
+    return (
+      <>
+        <LinkContainer to="/notes/new">
+          <ListGroup.Item action className="py-3 text-nowrap text-truncate">
+            <BsPencilSquare size={17} />
+            <span className="ml-2 font-weight-bold">Create a new note</span>
+          </ListGroup.Item>
+        </LinkContainer>
+
+        {notesPresent && (
+          <ListGroup> {renderNotesList(filteredNotes)}</ListGroup>
+        )}
+        {searchTerm && !notesPresent && (
+          <h4 className="text-muted mt-4">No notes found by search!</h4>
+        )}
+        {!searchTerm && !notesPresent && (
+          <>
+            <h4 className="text-muted mt-4">You don't have any notes yet!</h4>
+            <p className="text-muted">Get started by creating a note above.</p>
+          </>
+        )}
+      </>
+    );
+  }
+
   // We now make use of `isLoading` to decide whether to render a loading state.
   function renderNotes() {
     return (
       <div className="notes">
-        <h2 className="pb-3 mt-4 mb-3 border-bottom">Your Notes</h2>
+        <div className="pb-3 mt-4 mb-3 border-bottom">
+          <div className="notes-bar">
+            <h2>Your Notes</h2>
+
+            {!isSearching && (
+              <Button onClick={() => setIsSearching(true)}>Search</Button>
+            )}
+
+            {isSearching && (
+              <Button
+                variant="danger"
+                aria-label="Close search panel"
+                onClick={() => exitSearchPanel()}
+              >
+                <FaWindowClose />
+              </Button>
+            )}
+          </div>
+
+          {isSearching && (
+            <SearchPanel
+              searchTerm={searchTerm}
+              onChange={setSearchTerm}
+              onClear={() => clearSearch()}
+            />
+          )}
+        </div>
+
         {isLoading && <LoadingSpinner />}
-        {!isLoading && <ListGroup> {renderNotesList(notes)}</ListGroup>}
+        {!isLoading && renderNotesSection()}
       </div>
     );
   }

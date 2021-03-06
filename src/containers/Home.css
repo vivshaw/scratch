@@ -7,3 +7,10 @@
   font-family: "Open Sans", sans-serif;
   font-weight: 600;
 }
+
+.notes-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}

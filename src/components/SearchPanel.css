@@ -1,0 +1,4 @@
+.search-control {
+  display: flex;
+  flex-direction: row;
+}
