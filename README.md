@@ -1,37 +1,44 @@
-# Serverless Stack Demo React App
+# Scratch
 
-The [Serverless Stack Guide](http://serverless-stack.com) is a free comprehensive resource to creating full-stack serverless applications. We create a [note taking app](http://demo2.serverless-stack.com) from scratch.
+Scratch is my submission for Osmind's programming assessment, based on the app from the [Serverless Stack Guide](http://serverless-stack.com).
 
-This repo is for the frontend React app that we build over the course of the tutorial. You can find the repo for the backend serverless API [here](https://github.com/AnomalyInnovations/serverless-stack-demo-api). And the repo for the tutorial [here](https://github.com/AnomalyInnovations/serverless-stack-com).
+A [live production instance](https://vivshaw-scratch-prod.netlify.app/) is available on Netlify.
 
-#### Steps
+## Getting Started
 
-To support the different chapters and steps of the tutorial; we use branches to represent the project codebase at the various points. Here is an index of the various chapters and branches in order.
-
-- [Initialize the Frontend Repo](../../tree/initialize-the-frontend-repo)
-- [Configure AWS Amplify](../../tree/configure-aws-amplify)
-- [Redirect on Login](../../tree/redirect-on-login)
-- [Create a Build Script](../../tree/create-a-build-script)
-
-#### Usage
-
-This project is created using [Create React App](https://github.com/facebookincubator/create-react-app).
-
-To use this repo locally, start by cloning it and installing the NPM packages.
-
-``` bash
-$ git clone https://github.com/AnomalyInnovations/serverless-stack-demo-client
-$ npm install
+```
+npm install
+npm start
 ```
 
-Run it locally.
+## Features
 
-``` bash
-$ npm run start
-```
+### 1: Searching Notes
 
----
+We can now search notes on the Home screen. We simply take the search term as an input, then filter our loaded Notes for ones whose `content` field contains that search term.
 
-This repo is maintained by [Anomaly Innovations](https://anoma.ly); makers of [Seed](https://seed.run) and [Serverless Stack](https://serverless-stack.com).
+### 2: Find & Replace
 
-[Email]: mailto:contact@anoma.ly
+We can now find and replace notes on the Home screen. We display a Find & Replace panel, in which the user can enter their find and replace term. After the Find & Replace, the app maps over the selected notes with `API.put` calls, turning them into an array or Promises. Then we can return a `Promise.all()` so we know when all replacements are done. After this, we simply reload the notes from the API.
+
+### 3: Loading States
+
+I went with a keep-it-simple approach, using a modification of the existing `isLoading` hooks for the business logic, and a React Bootstrap spinner for the loading UI.
+
+### 4: Potential areas of improvement
+
+- State management could be better- would strongly consider a `useReducer` approach or Redux.
+- The rest of the app could be reimplemented in Typescript, and better types provided
+- Find & Replace could use an optimistic update approach instead of reloading all notes from the API.
+
+## Testing and CI/CD
+
+The app uses a modern React testing stack, including:
+
+- `jest` and `React Testing Library` for unit and integration tests.
+- `Mock Service Worker` to intercept AWS API calls- this we, we don't have to mock out Amplify in our tests! We simply use amplify as usual, then fake the desired API responses with MSW.
+- `cypress` and `Cypress Testing Library` for e2e tests.
+
+The app is deployed via a simple CI/CD pipeline built with `Github Actions`. There's a test phase, and two deployment phases (staging and production).
+
+The app is deployed to Netlify, first to [the staging instance](https://vivshaw-scratch-staging.netlify.app/), then after review and merging to `master`, to [the production instance](https://vivshaw-scratch-prod.netlify.app/).
