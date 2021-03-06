@@ -35,6 +35,7 @@ I went with a keep-it-simple approach, using a modification of the existing `isL
 
 The app uses a modern React testing stack, including:
 
+- `TypeScript` for static type analysis.
 - `jest` and `React Testing Library` for unit and integration tests.
 - `Mock Service Worker` to intercept AWS API calls- this we, we don't have to mock out Amplify in our tests! We simply use amplify as usual, then fake the desired API responses with MSW.
 - `cypress` and `Cypress Testing Library` for e2e tests.
