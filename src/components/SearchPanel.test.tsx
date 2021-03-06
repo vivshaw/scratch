@@ -23,11 +23,7 @@ test("displays a clear button", async () => {
   const setSearchTerm = jest.fn();
   const clearSearch = jest.fn();
   render(
-    <SearchPanel
-      searchTerm=""
-      setSearchTerm={setSearchTerm}
-      clearSearch={clearSearch}
-    />
+    <SearchPanel searchTerm="" onChange={setSearchTerm} onClear={clearSearch} />
   );
 
   const clearButton = screen.getByRole("button");
@@ -42,8 +38,8 @@ test("displays the search term", async () => {
   render(
     <SearchPanel
       searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      clearSearch={clearSearch}
+      onChange={setSearchTerm}
+      onClear={clearSearch}
     />
   );
 
@@ -59,8 +55,8 @@ test("calls setSearchTerm when the input is changed", async () => {
   render(
     <SearchPanel
       searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      clearSearch={clearSearch}
+      onChange={setSearchTerm}
+      onClear={clearSearch}
     />
   );
 
@@ -78,8 +74,8 @@ test("calls clearSearch when the clear button is clicked", async () => {
   render(
     <SearchPanel
       searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      clearSearch={clearSearch}
+      onChange={setSearchTerm}
+      onClear={clearSearch}
     />
   );
 

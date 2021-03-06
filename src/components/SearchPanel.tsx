@@ -5,14 +5,14 @@ import { FaSearch } from "react-icons/fa";
 
 type SearchPanelProps = {
   searchTerm: string;
-  setSearchTerm: (term: string) => {};
-  clearSearch: () => {};
+  onChange: (term: string) => {};
+  onClear: () => {};
 };
 
 const SearchPanel: FunctionComponent<SearchPanelProps> = ({
   searchTerm,
-  setSearchTerm,
-  clearSearch,
+  onChange,
+  onClear,
 }) => (
   <div className="search-control mt-2">
     <InputGroup>
@@ -23,11 +23,11 @@ const SearchPanel: FunctionComponent<SearchPanelProps> = ({
         type="text"
         placeholder="Search"
         value={searchTerm}
-        onChange={(event) => setSearchTerm(event.target.value)}
+        onChange={(event) => onChange(event.target.value)}
         aria-label="Search"
       />
       <InputGroup.Append>
-        <Button onClick={() => clearSearch()}>Clear</Button>
+        <Button onClick={() => onClear()}>Clear</Button>
       </InputGroup.Append>
     </InputGroup>
   </div>

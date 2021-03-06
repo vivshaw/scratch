@@ -153,8 +153,8 @@ export default function Home() {
           {isSearching && (
             <SearchPanel
               searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              clearSearch={() => clearSearch()}
+              onChange={setSearchTerm}
+              onClear={() => clearSearch()}
             />
           )}
         </div>
