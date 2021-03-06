@@ -19,7 +19,7 @@ We can now search notes on the Home screen. We simply take the search term as an
 
 ### 2: Find & Replace
 
-We can now find and replace notes on the Home screen. We display a Find & Replace panel, in which the user can enter their find and replace term. After the Find & Replace, the app maps over the selected notes with `API.put` calls, turning them into an array or Promises. Then we can return a `Promise.all()` so we know when all replacements are done. After this, we simply reload the notes from the API.
+We can now find and replace notes on the Home screen. We display a Find & Replace panel, in which the user can enter their find and replace term. When the Find & Replace is executed, the app maps over the selected notes with `API.put` calls, turning them into an array of Promises. Then we can return a `Promise.all()` so we know when all replacements are done. After the `Promise.all()` resolves, we simply reload the notes from the API.
 
 ### 3: Loading States
 
